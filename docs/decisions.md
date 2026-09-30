@@ -16,4 +16,4 @@
 **Context:** modeloutput is onbetrouwbaar; XSS-risico. **Beslissing:** per-request nonce in `proxy.ts` (Next 16-naam voor middleware), statische headers in `next.config.ts`; geen inline styles, platte-tekstrendering. **Gevolg:** alle styling via CSS Modules; geen `dangerouslySetInnerHTML`.
 
 ## ADR-6 Geen extra dependencies
-**Context:** supply-chainrisico en beperkte tijd. **Beslissing:** enkel next, react, zod, @anthropic-ai/sdk (+ types/eslint/typescript). Grafieken in het dashboard als handgemaakte SVG; eval-runner in plain TS onder node. **Gevolg:** kleine auditsurface (`npm audit` 0 high/critical).
+**Context:** supply-chainrisico en beperkte tijd. **Beslissing:** enkel next, react, zod; LLM via `fetch` naar een OpenAI-compatibel endpoint (+ types/eslint/typescript). Grafieken in het dashboard als handgemaakte SVG; eval-runner in plain TS onder node. **Gevolg:** kleine auditsurface (`npm audit` 0 high/critical).

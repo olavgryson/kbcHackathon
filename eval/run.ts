@@ -100,8 +100,8 @@ let tokens: EvalResults["tokens"] = {
 };
 
 if (live) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    console.log("--live genegeerd: geen ANTHROPIC_API_KEY, schattingen behouden.");
+  if (!process.env.LLM_BASE_URL) {
+    console.log("--live genegeerd: geen LLM_BASE_URL, schattingen behouden.");
   } else {
     const step = Math.max(1, Math.floor(dataset.length / 10));
     const sample = dataset.filter((_, i) => i % step === 0).slice(0, 10);

@@ -8,7 +8,6 @@
 |---|---|---|---|
 | next | 16.3.8 | runtime | MIT |
 | react / react-dom | 19.3.0 | runtime | MIT |
-| @anthropic-ai/sdk | 0.130.0 | runtime (server-only) | MIT |
 | zod | 4.6.5 | runtime | MIT |
 | typescript | 6.0.3 | dev | Apache-2.0 |
 | eslint | 10.11.0 | dev | MIT |
@@ -28,7 +27,7 @@ _Eindreview: security-reviewer, fase 4 (2026-09-30). Dekt de volledige repo, inc
 
 Eindcontrole (fase 4): `npm ci` (345 packages, conform lockfile) · `npm audit` 0 vulnerabilities (ook `--omit=dev`) · `npx tsc --noEmit` OK · `npm run lint` OK · `npm run build` OK · `next start -H 127.0.0.1 -p 3131` + `curl -sI` op `/` en `/dashboard` OK.
 
-- [x] 1. **Secrets** – geen treffers voor `sk-ant`, `api_key=...`, `Bearer`-tokens, GitHub/Slack/AWS-tokens of private keys in working tree, `git log -p --all` en alle nog niet gecommitte bestanden uit `git status --porcelain` (enkel de regex-tekst in `.claude/agents/security-reviewer.md`). `.gitignore` sluit `.env*` uit behalve `.env.example` (lege waarden). Geen `NEXT_PUBLIC_` in de code. Key enkel gelezen in `lib/agents/llm.ts:17`, nooit gelogd. `docs/diagrams-src/receipts/` (bevat lokale absolute paden) is genegeerd (`git check-ignore -v` → `.gitignore:19`); `docs/*.html`, `docs/diagrams-src/*.json` en `eval/results.json` bevatten geen lokale paden.
+- [x] 1. **Secrets** – geen treffers voor `api_key=...`, `Bearer`-tokens, GitHub/Slack/AWS-tokens of private keys in working tree, `git log -p --all` en alle nog niet gecommitte bestanden uit `git status --porcelain` (enkel de regex-tekst in `.claude/agents/security-reviewer.md`). `.gitignore` sluit `.env*` uit behalve `.env.example` (lege waarden). Geen `NEXT_PUBLIC_` in de code. Key enkel gelezen in `lib/agents/llm.ts:34`, nooit gelogd. `docs/diagrams-src/receipts/` (bevat lokale absolute paden) is genegeerd (`git check-ignore -v` → `.gitignore:19`); `docs/*.html`, `docs/diagrams-src/*.json` en `eval/results.json` bevatten geen lokale paden.
 - [x] 2. **Server-only** – `import "server-only"` in `lib/agents/*`, `lib/classifier/*`, `lib/data/index.ts`, `lib/signals/index.ts`, alle `app/api/*/route.ts` en `app/dashboard/loadResults.ts`. `app/dashboard/page.tsx` is een server component (geen `"use client"`). Client-componenten (`components/*.tsx`) importeren enkel `react`, `@/lib/contracts` (client-safe) en `./api`. `eval/register.mjs` vervangt `server-only` enkel voor het CLI-evalscript door een lege module (zelfde aliasing als Next); niet in de app gebruikt.
 - [x] 3. **Inputvalidatie** – `ChatRequestSchema`/`ChatTurnSchema` `.strict()` (`lib/contracts/chat.ts`), max 1000 tekens, max 20 beurten, `mode` als enum, laatste beurt `user`; `SmsCheckRequestSchema` `.strict()` (`lib/contracts/notifications.ts`). Content-type `application/json` verplicht (415) en bodylimiet (413) in beide POST-routes. Dashboard heeft geen invoer; `eval/results.json` wordt met `EvalResultsSchema` gevalideerd (`app/dashboard/loadResults.ts:10`), `eval/dataset.json` met `EvalItemSchema` (`eval/run.ts:25`, tekst ≤1000).
 - [x] 4. **Output als platte tekst** – geen `dangerouslySetInnerHTML`/`innerHTML` in de app (grep); modeloutput via `{d.reply}` in `<p>` (`components/Chat.tsx`); dashboard rendert enkel getallen en de gevalideerde `generatedAt`-string als React-tekst. ESLint `react/no-danger: error`.
@@ -68,7 +67,6 @@ Uitzonderingen en motivatie:
 - `caniuse-lite` (CC-BY-4.0): browserdata voor `browserslist`, enkel gebruikt tijdens build; het is data, geen code. Attributie via de package zelf.
 - `axe-core` (MPL-2.0): dev-only via `eslint-config-next` → `eslint-plugin-jsx-a11y`; draait enkel bij lint, wordt niet meegeleverd. MPL is file-level copyleft en geldt enkel bij wijziging van axe-core-bestanden.
 - `@img/sharp-libvips-darwin-arm64` (LGPL-3.0-or-later) en `@img/sharp-wasm32` (Apache-2.0 AND LGPL-3.0-or-later AND MIT): optionele dependencies van `next` → `sharp` voor beeldoptimalisatie. De app gebruikt `next/image` niet. libvips wordt dynamisch gelinkt en ongewijzigd gebruikt, wat LGPL toelaat. `@img/sharp-wasm32` staat in de lockfile als optionele dependency; `npm ls` toont hem als extraneous (zie F7).
-- `fast-sha256` (Unlicense, public domain): via `@anthropic-ai/sdk` → `standardwebhooks`.
 - `language-subtag-registry` (CC0-1.0): dev-only via `eslint-plugin-jsx-a11y`; public-domain data.
 - `minimatch` (BlueOak-1.0.0): dev-only via ESLint; permissieve licentie vergelijkbaar met MIT.
 
@@ -109,7 +107,7 @@ Niet-app-assets:
 
 - **Rate limit demo-niveau**: in-memory en per proces; de sleutel komt uit `X-Forwarded-For`/`X-Real-IP`, die zonder vertrouwde reverse proxy door de client te kiezen zijn (F6). In productie enkel achter een proxy die deze headers overschrijft, of een gedeelde store gebruiken.
 - **Geen authenticatie**: bewust, want de app gebruikt uitsluitend synthetische data van één demopersona zonder koppeling met KBC.
-- **In-memory state**: rate-limit-buckets en de Anthropic-client leven per proces; herstart wist ze, meerdere instanties delen niets.
+- **In-memory state**: rate-limit-buckets en de LLM-configuratie leven per proces; herstart wist ze, meerdere instanties delen niets.
 - **Netwerkbinding**: `next start` en `next dev` luisteren standaard op alle interfaces; start op een gedeeld netwerk met `-H 127.0.0.1` (F9, README).
 - **Historiek van de client**: de client stuurt de volledige historiek; eerdere assistantbeurten kunnen verzonnen zijn. Ze zijn ge-escaped en de tools zijn read-only met vaste persona, dus de impact blijft beperkt tot de antwoordtekst.
 - **LGPL `sharp`-binaries**: `@img/sharp-libvips-*` (LGPL-3.0-or-later) is een optionele dependency van `next` en wordt niet gebruikt (geen `next/image`); ongewijzigd en dynamisch gelinkt.

@@ -3,7 +3,7 @@
 PoC die Kate (digitale assistent KBC) specifieker maakt: lokaal classificatiemodel (jeff) beoordeelt elk bericht, een router stuurt naar een kleine domeinagent met read-only tools, deterministische signalen op synthetische transacties worden proactief gemeld, en live ingrepen (scamwaarschuwing, overdracht naar mens, verduidelijkende vraag). Vergelijkingsmodus Baseline (generalist) vs Kate+ met inputtokens en latentie; dashboard met eval-resultaten. Enkel synthetische data (persona "Sofie"), geen login, geen koppeling met KBC. UI in het Nederlands; klant schrijft NL/FR/EN en krijgt antwoord in zijn taal.
 
 ## Stack
-Next.js 16.3.8 (App Router), React 19.3, TypeScript 6 strict, zod 4 (`import { z } from "zod"`), @anthropic-ai/sdk (server-only), CSS Modules. Geen andere dependencies.
+Next.js 16.3.8 (App Router), React 19.3, TypeScript 6 strict, zod 4 (`import { z } from "zod"`), CSS Modules. Geen andere dependencies.
 **Next 16: middleware heet `proxy.ts`** (CSP-nonce + rate limit op `/api/*`).
 
 ## Mappen

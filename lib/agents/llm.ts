@@ -1,23 +1,45 @@
 import "server-only";
-import Anthropic from "@anthropic-ai/sdk";
 import type { ChatTurn, ToolContext, ToolDefinition } from "@/lib/contracts";
 
 export const MAX_ITERATIONS = 4;
 export const MAX_OUTPUT_TOKENS = 500;
 
 export function modelSimple(): string {
-  return process.env.MODEL_SIMPLE || "claude-haiku-4-5-20251001";
+  return process.env.MODEL_SIMPLE || "llm-simple";
 }
 export function modelComplex(): string {
-  return process.env.MODEL_COMPLEX || "claude-sonnet-5-5";
+  return process.env.MODEL_COMPLEX || "llm-complex";
 }
 
-let client: Anthropic | null = null;
-function getClient(): Anthropic | null {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return null;
-  client ??= new Anthropic({ apiKey });
-  return client;
+// OpenAI-compatible Chat Completions (vLLM, Ollama, TGI, Azure, ...): self-hosted model, data stays in-house.
+type Message =
+  | { role: "system" | "user"; content: string }
+  | { role: "assistant"; content: string | null; tool_calls?: ToolCall[] }
+  | { role: "tool"; tool_call_id: string; content: string };
+interface ToolCall {
+  id: string;
+  type: "function";
+  function: { name: string; arguments: string };
+}
+interface Completion {
+  choices: { finish_reason: string; message: { content: string | null; tool_calls?: ToolCall[] } }[];
+  usage?: { prompt_tokens: number };
+}
+
+export function llmConfigured(): boolean {
+  return !!process.env.LLM_BASE_URL;
+}
+
+async function complete(body: object): Promise<Completion> {
+  const key = process.env.LLM_API_KEY;
+  const res = await fetch(`${process.env.LLM_BASE_URL!.replace(/\/$/, "")}/chat/completions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...(key ? { Authorization: `Bearer ${key}` } : {}) },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(30_000),
+  });
+  if (!res.ok) throw new Error(`status=${res.status}`);
+  return (await res.json()) as Completion;
 }
 
 /** Zorgt dat klanttekst de <klantbericht>-tags niet kan breken. */
@@ -60,7 +82,7 @@ export interface AgentLoopOutput {
 
 // History comes from the client, so earlier assistant turns are untrusted too:
 // escape them so they cannot inject <klantbericht>/<context> blocks.
-function historyMessages(history: ChatTurn[]): Anthropic.MessageParam[] {
+function historyMessages(history: ChatTurn[]): Message[] {
   return history.map((t) => ({
     role: t.role,
     content: t.role === "user" ? wrapCustomerText(t.content) : escapeCustomerText(t.content),
@@ -79,16 +101,15 @@ async function demoOutput(input: AgentLoopInput): Promise<AgentLoopOutput> {
 }
 
 export async function runAgentLoop(input: AgentLoopInput): Promise<AgentLoopOutput> {
-  const anthropic = getClient();
-  if (!anthropic) return demoOutput(input);
+  if (!llmConfigured()) return demoOutput(input);
 
   try {
-    const tools: Anthropic.Tool[] = input.tools.map((t) => ({
-      name: t.name,
-      description: t.description,
-      input_schema: t.input_schema as Anthropic.Tool.InputSchema,
+    const tools = input.tools.map((t) => ({
+      type: "function",
+      function: { name: t.name, description: t.description, parameters: t.input_schema },
     }));
-    const messages: Anthropic.MessageParam[] = [
+    const messages: Message[] = [
+      { role: "system", content: input.system },
       ...historyMessages(input.history),
       { role: "user", content: input.userContent },
     ];
@@ -97,45 +118,40 @@ export async function runAgentLoop(input: AgentLoopInput): Promise<AgentLoopOutp
 
     for (let i = 0; i < MAX_ITERATIONS; i++) {
       const lastRound = i === MAX_ITERATIONS - 1;
-      const response = await anthropic.messages.create({
+      const response = await complete({
         model: input.model,
         max_tokens: MAX_OUTPUT_TOKENS,
-        system: input.system,
         messages,
         ...(tools.length > 0 && !lastRound ? { tools } : {}),
       });
-      inputTokens += response.usage.input_tokens;
+      inputTokens += response.usage?.prompt_tokens ?? 0;
+      const msg = response.choices[0]?.message;
+      if (!msg) break;
 
-      if (response.stop_reason === "tool_use" && !lastRound) {
-        messages.push({ role: "assistant", content: response.content });
-        const results: Anthropic.ToolResultBlockParam[] = [];
-        for (const block of response.content) {
-          if (block.type !== "tool_use") continue;
-          toolCalls.push(block.name);
-          const tool = input.tools.find((t) => t.name === block.name);
+      if (msg.tool_calls?.length && !lastRound) {
+        messages.push({ role: "assistant", content: msg.content, tool_calls: msg.tool_calls });
+        for (const call of msg.tool_calls) {
+          toolCalls.push(call.function.name);
+          const tool = input.tools.find((t) => t.name === call.function.name);
+          let content: string;
           try {
             if (!tool) throw new Error("unknown tool");
-            const out = await tool.run(block.input, input.ctx);
-            results.push({ type: "tool_result", tool_use_id: block.id, content: JSON.stringify(out) });
+            content = JSON.stringify(await tool.run(JSON.parse(call.function.arguments || "{}"), input.ctx));
           } catch {
-            results.push({ type: "tool_result", tool_use_id: block.id, content: "Ongeldige aanvraag.", is_error: true });
+            content = "Ongeldige aanvraag.";
           }
+          messages.push({ role: "tool", tool_call_id: call.id, content });
         }
-        messages.push({ role: "user", content: results });
         continue;
       }
 
-      const reply = response.content
-        .flatMap((b) => (b.type === "text" ? [b.text] : []))
-        .join("\n")
-        .trim();
+      const reply = (msg.content ?? "").trim();
       if (!reply) break;
       return { reply, inputTokens, model: input.model, toolCalls, demo: false };
     }
     throw new Error("no final reply");
   } catch (err) {
-    const status = err instanceof Anthropic.APIError ? String(err.status) : "n/a";
-    console.error(`[agents] llm error status=${status}`);
+    console.error(`[agents] llm error ${err instanceof Error ? err.message : "n/a"}`);
     return demoOutput(input);
   }
 }

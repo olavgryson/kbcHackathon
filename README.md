@@ -3,7 +3,7 @@
 Kate+ toont hoe een digitale bankassistent specifiek in plaats van algemeen kan antwoorden:
 
 1. **Lokaal classificatiemodel per beurt** ([jeff](https://github.com/firelex/jeff)) bepaalt `domain`, `generic_risk`, `frustration`, `scam_signal` en `needs_human`. Zonder lokaal model neemt een deterministische `FallbackClassifier` over.
-2. **Router → domeinagents** met een kleine systeemprompt en alleen read-only tools (Haiku 4.5 voor eenvoudige domeinen, Sonnet 5.5 voor kredieten, beleggen en fraude).
+2. **Router → domeinagents** met een kleine systeemprompt en alleen read-only tools (klein model voor eenvoudige domeinen, groter model voor kredieten, beleggen en fraude; beide zelf gehost).
 3. **Proactieve signalen**: deterministische regels op synthetische transacties (duurder abonnement, dubbele betaling, ongebruikelijke kost, nieuwe begunstigde + nieuw toestel). De classifier beslist of iets gemeld wordt.
 4. **Live ingrijpen**: veiligheidswaarschuwing, overdrachtskaart naar een medewerker, verduidelijkende vraag.
 5. **Vergelijkingsmodus**: Baseline (één generalist) tegenover Kate+, met inputtokens en latentie per antwoord.
@@ -20,25 +20,26 @@ Vereist: Node.js ≥ 22.15 (getest met 24).
 ```bash
 npm ci
 npx next telemetry disable   # Next.js-telemetrie uit
-cp .env.example .env.local   # vul ANTHROPIC_API_KEY in
+cp .env.example .env.local   # vul LLM_BASE_URL in
 npm run dev                  # http://localhost:3000
 ```
 
 Productie-build: `npm run build && npm start -- -H 127.0.0.1` (zonder `-H` luistert Next op alle netwerkinterfaces; op een gedeeld netwerk dus altijd op loopback binden). Kwaliteit: `npm run lint`, `npm run typecheck`, `npm audit`.
 
-Zonder `ANTHROPIC_API_KEY` draait de app in **demo-modus**: deterministische antwoorden op basis van dezelfde tools en signalen, met geschatte inputtokens. De chip onder elk antwoord toont dan "demo".
+Zonder `LLM_BASE_URL` draait de app in **demo-modus**: deterministische antwoorden op basis van dezelfde tools en signalen, met geschatte inputtokens. De chip onder elk antwoord toont dan "demo".
 
 ## Omgevingsvariabelen
 
 | Variabele | Standaard | Uitleg |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | – | Alleen server-side, alleen in `.env.local`. Nooit met `NEXT_PUBLIC_`-prefix. |
+| `LLM_BASE_URL` | – | OpenAI-compatibel endpoint van het eigen, zelf gehoste model (bv. vLLM, Ollama). Leeg = demo-modus. |
+| `LLM_API_KEY` | – | Optioneel. Alleen server-side, alleen in `.env.local`. Nooit met `NEXT_PUBLIC_`-prefix. |
 | `CLASSIFIER_MODE` | `fallback` | `local` = jeff op 127.0.0.1, `fallback` = deterministische regels. |
 | `LOCAL_CLASSIFIER_URL` | `http://127.0.0.1:8765` | Alleen loopback-hosts worden geaccepteerd. Timeout 3 s, daarna fallback. |
 | `LOCAL_CLASSIFIER_API_KEY` | – | Optioneel, als jeff-serve met `JEFF_API_KEY` draait. |
 | `ROUTER_CONFIDENCE_THRESHOLD` | `0.6` | Onder deze confidence stelt Kate+ een verduidelijkende vraag. |
-| `MODEL_SIMPLE` | `claude-haiku-4-5-20251001` | Eenvoudige domeinen. |
-| `MODEL_COMPLEX` | `claude-sonnet-5-5` | Kredieten, sparen/beleggen, fraude/app-beveiliging en de baseline. |
+| `MODEL_SIMPLE` | `llm-simple` | Eenvoudige domeinen. |
+| `MODEL_COMPLEX` | `llm-complex` | Kredieten, sparen/beleggen, fraude/app-beveiliging en de baseline. |
 
 ## Lokaal classificatiemodel (jeff)
 
@@ -60,7 +61,7 @@ Zet daarna in `.env.local`: `CLASSIFIER_MODE=local`. De app roept `POST /v1/syst
 
 ```bash
 npm run eval             # classifier over eval/dataset.json → eval/results.json
-npm run eval -- --live   # optioneel: steekproef met echte usage.input_tokens (vereist API-key)
+npm run eval -- --live   # optioneel: steekproef met echte inputtokens (vereist `LLM_BASE_URL`)
 ```
 
 Het dashboard (`/dashboard`) leest `eval/results.json` server-side.

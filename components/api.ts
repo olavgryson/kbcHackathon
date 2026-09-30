@@ -61,8 +61,6 @@ export function getJson<T>(url: string, guard: (v: unknown) => v is T) {
 
 export function shortModel(model: string): string {
   const m = model.toLowerCase();
-  if (m.includes("haiku")) return "Haiku";
-  if (m.includes("sonnet")) return "Sonnet";
   if (m.includes("router")) return "router";
   if (m.includes("demo")) return "demo";
   return model.slice(0, 20);

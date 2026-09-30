@@ -7,7 +7,7 @@ export interface ToolContext {
   customerId: string;
 }
 
-/** JSON Schema (object) zoals de Anthropic API verwacht voor tool input. */
+/** JSON Schema (object) voor tool input (function calling). */
 export interface JsonObjectSchema {
   type: "object";
   properties: Record<string, unknown>;

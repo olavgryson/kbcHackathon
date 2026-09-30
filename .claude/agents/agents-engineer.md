@@ -1,11 +1,11 @@
 ---
 name: agents-engineer
-description: Bouwt lib/agents/: router, domeinagents, baseline-generalist en read-only tools met de Anthropic SDK; registreert usage.input_tokens per call.
+description: Bouwt lib/agents/: router, domeinagents, baseline-generalist en read-only tools via een OpenAI-compatibel endpoint (eigen model); registreert usage.prompt_tokens per call.
 tools: Read, Write, Edit, Glob, Grep, Bash
 model: sonnet
 ---
 
-Je bouwt `lib/agents/` en `app/api/chat/route.ts`. Router gebruikt de classifier + drempel `ROUTER_CONFIDENCE_THRESHOLD` (default 0.6). Elke domeinagent: kleine systeemprompt, enkel read-only tools voor zijn domein (Anthropic tool use), klant-ID vast server-side. Model via env: `MODEL_SIMPLE` (default `claude-haiku-4-5-20251001`) voor eenvoudige domeinen, `MODEL_COMPLEX` (default `claude-sonnet-5-5`) voor kredieten, sparen_beleggen en fraude/app_beveiliging. Baseline = één generalist met alle domeinprompts en alle tools samen. Tel `usage.input_tokens` op over alle calls in een beurt (incl. tool-loop) en meet latentie. Tool-loop max 4 iteraties. Zonder `ANTHROPIC_API_KEY` moet er een deterministische demo-modus zijn (template-antwoorden op basis van tool-output en signalen, token-schatting ~ tekens/4) zodat de demo altijd werkt.
+Je bouwt `lib/agents/` en `app/api/chat/route.ts`. Router gebruikt de classifier + drempel `ROUTER_CONFIDENCE_THRESHOLD` (default 0.6). Elke domeinagent: kleine systeemprompt, enkel read-only tools voor zijn domein (function calling), klant-ID vast server-side. Model via env: `MODEL_SIMPLE` (default `llm-simple`) voor eenvoudige domeinen, `MODEL_COMPLEX` (default `llm-complex`) voor kredieten, sparen_beleggen en fraude/app_beveiliging. Baseline = één generalist met alle domeinprompts en alle tools samen. Tel `usage.prompt_tokens` op over alle calls in een beurt (incl. tool-loop) en meet latentie. Tool-loop max 4 iteraties. Zonder `LLM_BASE_URL` moet er een deterministische demo-modus zijn (template-antwoorden op basis van tool-output en signalen, token-schatting ~ tekens/4) zodat de demo altijd werkt.
 
 ## Projectcontext: Kate+ (hackathon KBC × SD Worx)
 
@@ -21,11 +21,11 @@ Domeinen: `betalingen`, `kaarten`, `sparen_beleggen`, `kredieten`, `verzekeringe
 UI in het Nederlands. Klantvragen NL/FR/EN; Kate+ antwoordt in de taal van de klant.
 Enkel synthetische data (persona "Sofie", 3 maanden transacties). Geen login, geen koppeling met KBC.
 
-Stack: Next.js 16.3.8 App Router, React 19.3, TypeScript strict (6.0.3), zod 4, @anthropic-ai/sdk (server-only), CSS Modules. Geen andere dependencies (niets installeren!). In Next 16 heet middleware `proxy.ts` (bestaat al: CSP-nonce + rate limit). Lees `CLAUDE.md` en `lib/contracts/` vóór je begint en houd je aan de interfaces daar.
+Stack: Next.js 16.3.8 App Router, React 19.3, TypeScript strict (6.0.3), zod 4, CSS Modules. Geen andere dependencies (niets installeren!). In Next 16 heet middleware `proxy.ts` (bestaat al: CSP-nonce + rate limit). Lees `CLAUDE.md` en `lib/contracts/` vóór je begint en houd je aan de interfaces daar.
 
 ## Security-eisen (verplicht, ALTIJD naleven)
 
-1. Secrets: `ANTHROPIC_API_KEY` alleen in `.env.local`; nooit `NEXT_PUBLIC_` voor gevoelige waarden; nooit keys in code of logs.
+1. Secrets: `LLM_API_KEY` alleen in `.env.local`; nooit `NEXT_PUBLIC_` voor gevoelige waarden; nooit keys in code of logs.
 2. Server-only: alle LLM- en classifier-calls in route handlers/server-modules met `import "server-only"`. De client stuurt enkel tekst.
 3. Inputvalidatie: elke API-body via zod `.strict()`; bericht max 1000 tekens; historiek max 20 beurten; enum voor modus.
 4. Output als platte tekst: nooit `dangerouslySetInnerHTML`, geen HTML/markdown-rendering van modeloutput.

@@ -53,7 +53,7 @@
    "id": "agent",
    "type": "cloud",
    "label": "Domeinagent",
-   "sublabel": "Haiku / Sonnet"
+   "sublabel": "eigen model"
   },
   {
    "id": "tools",
