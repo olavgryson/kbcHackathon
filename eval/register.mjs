@@ -35,6 +35,8 @@ registerHooks({
   },
   load(url, context, nextLoad) {
     if (url.startsWith("file:") && url.endsWith(".json")) {
+      // Only project files: the URL comes from our own imports, never from user input.
+      if (!url.startsWith(root.href) || url.includes("/node_modules/")) return nextLoad(url, context);
       const data = readFileSync(fileURLToPath(url), "utf8");
       return { format: "module", source: `export default ${data};`, shortCircuit: true };
     }
