@@ -1,0 +1,145 @@
+{
+  "profile": {
+    "id": "sofie-demo",
+    "firstName": "Sofie",
+    "language": "nl",
+    "employer": "Brightlane NV",
+    "payrollProvider": "SD Worx"
+  },
+  "accounts": [
+    {
+      "id": "acc-zicht",
+      "kind": "zicht",
+      "name": "Zichtrekening",
+      "ibanMasked": "BE68 **** **** 5412",
+      "balance": 1184.37
+    },
+    {
+      "id": "acc-spaar",
+      "kind": "spaar",
+      "name": "Spaarrekening",
+      "ibanMasked": "BE12 **** **** 8830",
+      "balance": 6200
+    },
+    {
+      "id": "acc-beleg",
+      "kind": "beleg",
+      "name": "Beleggingsrekening",
+      "ibanMasked": "BE45 **** **** 1207",
+      "balance": 4350.9
+    }
+  ],
+  "cards": [
+    {
+      "id": "card-debet",
+      "kind": "debet",
+      "last4": "4821",
+      "status": "actief",
+      "monthlyLimit": 2500
+    },
+    {
+      "id": "card-krediet",
+      "kind": "krediet",
+      "last4": "9033",
+      "status": "actief",
+      "monthlyLimit": 1500
+    }
+  ],
+  "loans": [
+    {
+      "id": "loan-auto",
+      "kind": "Autolening",
+      "outstanding": 9870.5,
+      "monthly": 312.4,
+      "rate": 3.9,
+      "endDate": "2029-05-15"
+    }
+  ],
+  "insurances": [
+    {
+      "id": "ins-auto",
+      "kind": "Autoverzekering + familiale",
+      "premiumMonthly": 38.5,
+      "coverage": "Omnium en familiale verzekering"
+    }
+  ],
+  "investments": [
+    {
+      "id": "inv-world",
+      "name": "Wereldwijd aandelenfonds",
+      "value": 3100.9,
+      "changePct3m": 4.2
+    },
+    {
+      "id": "inv-bond",
+      "name": "Obligatiefonds",
+      "value": 1250,
+      "changePct3m": 0.8
+    }
+  ],
+  "payees": [
+    {
+      "id": "payee-huisbaas",
+      "name": "Huisbaas Vermeulen",
+      "ibanMasked": "BE71 **** **** 3345",
+      "addedAt": "2026-07-01T07:40:00"
+    },
+    {
+      "id": "payee-peeters",
+      "name": "J. Peeters",
+      "ibanMasked": "BE09 **** **** 7761",
+      "addedAt": "2026-09-27T21:31:00"
+    }
+  ],
+  "logins": [
+    {
+      "id": "login-001",
+      "timestamp": "2026-07-01T07:38:00",
+      "device": "iPhone 14 – Sofie",
+      "newDevice": false,
+      "location": "Gent, BE"
+    },
+    {
+      "id": "login-002",
+      "timestamp": "2026-07-12T09:10:00",
+      "device": "iPhone 14 – Sofie",
+      "newDevice": false,
+      "location": "Gent, BE"
+    },
+    {
+      "id": "login-003",
+      "timestamp": "2026-07-25T07:55:00",
+      "device": "Laptop Chrome – Windows",
+      "newDevice": false,
+      "location": "Gent, BE"
+    },
+    {
+      "id": "login-004",
+      "timestamp": "2026-08-14T18:20:00",
+      "device": "iPhone 14 – Sofie",
+      "newDevice": false,
+      "location": "Gent, BE"
+    },
+    {
+      "id": "login-005",
+      "timestamp": "2026-09-05T08:02:00",
+      "device": "Laptop Chrome – Windows",
+      "newDevice": false,
+      "location": "Gent, BE"
+    },
+    {
+      "id": "login-006",
+      "timestamp": "2026-09-20T09:30:00",
+      "device": "iPhone 14 – Sofie",
+      "newDevice": false,
+      "location": "Gent, BE"
+    },
+    {
+      "id": "login-007",
+      "timestamp": "2026-09-27T21:14:00",
+      "device": "Android – onbekend toestel",
+      "newDevice": true,
+      "location": "Onbekend"
+    }
+  ]
+}

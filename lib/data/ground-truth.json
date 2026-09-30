@@ -1,0 +1,27 @@
+[
+  {
+    "type": "subscription_increase",
+    "relatedTransactionIds": [
+      "tx-053"
+    ]
+  },
+  {
+    "type": "duplicate_payment",
+    "relatedTransactionIds": [
+      "tx-059",
+      "tx-060"
+    ]
+  },
+  {
+    "type": "unusual_cost",
+    "relatedTransactionIds": [
+      "tx-049"
+    ]
+  },
+  {
+    "type": "new_payee_new_device",
+    "relatedTransactionIds": [
+      "tx-066"
+    ]
+  }
+]

@@ -1,0 +1,5 @@
+.chips { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.chip, .plus, .base, .demo { font-size: 0.75rem; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); }
+.plus { background: var(--kbc-navy); color: #fff; border-color: var(--kbc-navy); font-weight: 600; }
+.base { background: var(--muted); color: #fff; border-color: var(--muted); font-weight: 600; }
+.demo { background: #fff4e0; color: var(--warning); border-color: var(--warning); }

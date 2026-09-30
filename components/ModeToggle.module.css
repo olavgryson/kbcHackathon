@@ -1,0 +1,4 @@
+.group { display: inline-flex; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 3px; }
+.option, .active { border: 0; border-radius: 999px; padding: 8px 18px; font: inherit; font-weight: 600; cursor: pointer; min-height: 40px; }
+.option { background: transparent; color: var(--kbc-navy); }
+.active { background: var(--kbc-navy); color: #fff; }

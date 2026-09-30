@@ -1,0 +1,12 @@
+.wrap { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.scam, .handover, .clarify { border-radius: 10px; padding: 12px; border: 1px solid var(--border); background: var(--surface); }
+.scam { border-color: var(--danger); background: #fdecea; border-left-width: 6px; }
+.scam .title { color: var(--danger); }
+.handover { border-left: 6px solid var(--kbc-navy); }
+.clarify { border-left: 6px solid var(--kbc-blue); }
+.title { margin: 0 0 4px; font-size: 1rem; }
+.text, .reason { margin: 0 0 6px; white-space: pre-wrap; }
+.reason { color: var(--muted); font-size: 0.875rem; }
+.options { display: flex; flex-wrap: wrap; gap: 6px; }
+.btn { font: inherit; font-weight: 600; min-height: 40px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--kbc-navy); background: #fff; color: var(--kbc-navy); cursor: pointer; }
+.btn:disabled { opacity: 0.6; cursor: default; }
