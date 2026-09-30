@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": { "title": "Kate+ runtime-architectuur", "output": "docs/architecture.html", "locale": "en", "quality_profile": "showcase" },
+  "components": [
+    { "id": "browser", "type": "frontend", "label": "Browser", "sublabel": "Next.js client, CSP-nonce", "pos": [40, 230], "size": [140, 60] },
+    { "id": "proxy", "type": "security", "label": "proxy.ts", "sublabel": "rate limit + CSP", "pos": [270, 230], "size": [140, 60], "tag": "token bucket /api/*" },
+    { "id": "routes", "type": "backend", "label": "Route handlers", "sublabel": "chat, notifications, sms", "pos": [500, 230], "size": [140, 60], "tag": "zod .strict()" },
+    { "id": "classifier", "type": "backend", "label": "Classifier", "sublabel": "LocalJeff, Fallback", "pos": [730, 230], "size": [140, 60] },
+    { "id": "router", "type": "backend", "label": "Router", "sublabel": "drempel 0,6", "pos": [960, 230], "size": [140, 60] },
+    { "id": "interv", "type": "security", "label": "Ingrepen", "sublabel": "scam, handover, clarify", "pos": [1190, 230], "size": [140, 60] },
+    { "id": "jeff", "type": "external", "label": "jeff lokaal model", "sublabel": "127.0.0.1:8765", "pos": [730, 80], "size": [140, 60] },
+    { "id": "baseline", "type": "backend", "label": "Baseline-generalist", "sublabel": "alle prompts + tools", "pos": [500, 370], "size": [140, 60], "tag": "vergelijkingspad" },
+    { "id": "signals", "type": "backend", "label": "Signalenlaag", "sublabel": "4 deterministische regels", "pos": [730, 370], "size": [140, 60] },
+    { "id": "agents", "type": "backend", "label": "Domeinagent", "sublabel": "Haiku 4.5 of Sonnet 5.5", "pos": [960, 370], "size": [140, 60] },
+    { "id": "anthropic", "type": "external", "label": "Anthropic API", "sublabel": "Messages API", "pos": [1190, 370], "size": [140, 60] },
+    { "id": "data", "type": "database", "label": "Sofie-transacties", "sublabel": "synthetisch, 3 maanden", "pos": [730, 510], "size": [140, 60] },
+    { "id": "tools", "type": "backend", "label": "Read-only tools", "sublabel": "klant-ID server-bepaald", "pos": [960, 510], "size": [140, 60] },
+    { "id": "eval", "type": "backend", "label": "npm run eval", "sublabel": "evalset + runner", "pos": [500, 700], "size": [140, 60] },
+    { "id": "results", "type": "database", "label": "eval/results.json", "sublabel": "routering, tokens, signalen", "pos": [730, 700], "size": [140, 60] },
+    { "id": "dashboard", "type": "frontend", "label": "Dashboard", "sublabel": "/dashboard", "pos": [960, 700], "size": [140, 60] }
+  ],
+  "boundaries": [
+    { "kind": "security-group", "label": "Trust: browser (onbetrouwd)", "wraps": ["browser"] },
+    { "kind": "region", "label": "Trust: Next.js-server (nodejs)", "wraps": ["proxy", "routes", "classifier", "router", "interv", "baseline", "signals", "agents", "data", "tools"] },
+    { "kind": "security-group", "label": "Trust: lokaal model", "wraps": ["jeff"] },
+    { "kind": "security-group", "label": "Trust: extern (Anthropic)", "wraps": ["anthropic"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "browser", "to": "proxy", "label": "HTTPS", "variant": "emphasis" },
+    { "id": "c2", "from": "proxy", "to": "routes", "label": "toegelaten" },
+    { "id": "c3", "from": "routes", "to": "classifier", "label": "classify" },
+    { "id": "c4", "from": "classifier", "to": "router", "label": "labels" },
+    { "id": "c5", "from": "router", "to": "interv", "label": "scam/mens", "variant": "security" },
+    { "id": "c6", "from": "classifier", "to": "jeff", "label": "/v1/systemone, 3 s", "variant": "dashed", "fromSide": "top", "toSide": "bottom" },
+    { "id": "c7", "from": "routes", "to": "baseline", "label": "mode=baseline", "variant": "dashed", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c8", "from": "classifier", "to": "signals", "label": "decideNotify", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c9", "from": "router", "to": "agents", "label": "domein + model", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c10", "from": "signals", "to": "agents", "label": "context" },
+    { "id": "c11", "from": "agents", "to": "anthropic", "label": "prompt" },
+    { "id": "c12", "from": "agents", "to": "tools", "label": "tool-loop max 4", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c13", "from": "signals", "to": "data", "label": "regels", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c14", "from": "tools", "to": "data", "label": "lezen" },
+    { "id": "c15", "from": "baseline", "to": "anthropic", "label": "alle tools", "variant": "dashed", "fromSide": "bottom", "toSide": "bottom", "via": [[570, 620], [1260, 620]] },
+    { "id": "c16", "from": "eval", "to": "results", "label": "schrijft" },
+    { "id": "c17", "from": "results", "to": "dashboard", "label": "leest" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Verzoekpad", "items": ["Browser stuurt enkel tekst en modus", "proxy.ts: token bucket per IP op /api/*, CSP-nonce op pagina's", "Route handlers valideren met zod .strict()"] },
+    { "dot": "emerald", "title": "Kate+ routering", "items": ["Lokaal model of FallbackClassifier beoordeelt elk bericht", "Haiku 4.5 voor eenvoudige domeinen, Sonnet 5.5 voor kredieten, beleggen en app-beveiliging", "Signalen gaan als context mee; meldingen via /api/notifications"] },
+    { "dot": "rose", "title": "Trust boundaries", "items": ["Browser naar server: geen vertrouwen in invoer", "Server naar Anthropic: enkel klantbericht in afgebakend blok", "Server naar lokaal model: 127.0.0.1, time-out 3 s, uitvoer tegen allowlist"] }
+  ]
+}

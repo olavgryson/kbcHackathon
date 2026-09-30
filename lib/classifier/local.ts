@@ -76,6 +76,8 @@ async function callJeff(endpoint: string, state: string, questions: Record<strin
     body: JSON.stringify({ model: "jeff-latest", state, questions }),
     signal: AbortSignal.timeout(3000),
     cache: "no-store",
+    // Never follow redirects: the loopback check above must hold for the actual target.
+    redirect: "error",
   });
   if (!res.ok) throw new Error("status");
   const parsed = SystemOneResponseSchema.parse(await res.json());

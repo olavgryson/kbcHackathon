@@ -58,10 +58,12 @@ export interface AgentLoopOutput {
   demo: boolean;
 }
 
+// History comes from the client, so earlier assistant turns are untrusted too:
+// escape them so they cannot inject <klantbericht>/<context> blocks.
 function historyMessages(history: ChatTurn[]): Anthropic.MessageParam[] {
   return history.map((t) => ({
     role: t.role,
-    content: t.role === "user" ? wrapCustomerText(t.content) : t.content,
+    content: t.role === "user" ? wrapCustomerText(t.content) : escapeCustomerText(t.content),
   }));
 }
 

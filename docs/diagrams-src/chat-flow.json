@@ -1,0 +1,267 @@
+{
+ "schema_version": 1,
+ "diagram_type": "sequence",
+ "meta": {
+  "title": "Kate+ chatbeurt",
+  "output": "docs/chat-flow.html",
+  "locale": "en",
+  "viewBox": [
+   1080,
+   680
+  ],
+  "column_fit": "spread",
+  "quality_profile": "showcase"
+ },
+ "participants": [
+  {
+   "id": "browser",
+   "type": "frontend",
+   "label": "Browser",
+   "sublabel": "Kate+-modus"
+  },
+  {
+   "id": "proxy",
+   "type": "security",
+   "label": "proxy.ts",
+   "sublabel": "token bucket"
+  },
+  {
+   "id": "route",
+   "type": "backend",
+   "label": "/api/chat",
+   "sublabel": "zod-validatie"
+  },
+  {
+   "id": "runchat",
+   "type": "backend",
+   "label": "runChat",
+   "sublabel": "router + ingrepen"
+  },
+  {
+   "id": "clf",
+   "type": "backend",
+   "label": "Classifier",
+   "sublabel": "jeff of fallback"
+  },
+  {
+   "id": "sig",
+   "type": "backend",
+   "label": "Signalen",
+   "sublabel": "getSignals"
+  },
+  {
+   "id": "agent",
+   "type": "cloud",
+   "label": "Domeinagent",
+   "sublabel": "Haiku / Sonnet"
+  },
+  {
+   "id": "tools",
+   "type": "database",
+   "label": "Tools",
+   "sublabel": "read-only"
+  }
+ ],
+ "segments": [
+  {
+   "from": 156,
+   "to": 240,
+   "label": "Invoer"
+  },
+  {
+   "from": 240,
+   "to": 408,
+   "label": "Classificeren + signalen"
+  },
+  {
+   "from": 408,
+   "to": 520,
+   "label": "Agent"
+  },
+  {
+   "from": 520,
+   "to": 576,
+   "label": "Antwoord"
+  }
+ ],
+ "messages": [
+  {
+   "id": "m1",
+   "from": "browser",
+   "to": "proxy",
+   "y": 170,
+   "label": "POST /api/chat (tekst)",
+   "variant": "emphasis"
+  },
+  {
+   "id": "m2",
+   "from": "proxy",
+   "to": "route",
+   "y": 198,
+   "label": "token ok, anders 429",
+   "variant": "security"
+  },
+  {
+   "id": "m3",
+   "from": "route",
+   "to": "runchat",
+   "y": 226,
+   "label": "zod ok, runChat",
+   "variant": "default"
+  },
+  {
+   "id": "m4",
+   "from": "runchat",
+   "to": "clf",
+   "y": 254,
+   "label": "classify",
+   "variant": "default"
+  },
+  {
+   "id": "m5",
+   "from": "clf",
+   "to": "runchat",
+   "y": 282,
+   "label": "labels + confidence",
+   "variant": "return"
+  },
+  {
+   "id": "m6",
+   "from": "runchat",
+   "to": "sig",
+   "y": 310,
+   "label": "getSignals",
+   "variant": "default"
+  },
+  {
+   "id": "m7",
+   "from": "sig",
+   "to": "clf",
+   "y": 338,
+   "label": "decideNotify",
+   "variant": "dashed"
+  },
+  {
+   "id": "m8",
+   "from": "clf",
+   "to": "sig",
+   "y": 366,
+   "label": "notify ja/nee",
+   "variant": "return"
+  },
+  {
+   "id": "m9",
+   "from": "sig",
+   "to": "runchat",
+   "y": 394,
+   "label": "relevante signalen",
+   "variant": "return"
+  },
+  {
+   "id": "m10",
+   "from": "runchat",
+   "to": "agent",
+   "y": 422,
+   "label": "klantbericht + context",
+   "variant": "emphasis"
+  },
+  {
+   "id": "m11",
+   "from": "agent",
+   "to": "tools",
+   "y": 450,
+   "label": "tool_use (max 4)",
+   "variant": "default"
+  },
+  {
+   "id": "m12",
+   "from": "tools",
+   "to": "agent",
+   "y": 478,
+   "label": "resultaat",
+   "variant": "return"
+  },
+  {
+   "id": "m13",
+   "from": "agent",
+   "to": "runchat",
+   "y": 506,
+   "label": "antwoord + tokens",
+   "variant": "return"
+  },
+  {
+   "id": "m14",
+   "from": "runchat",
+   "to": "route",
+   "y": 534,
+   "label": "ChatResponseSchema",
+   "variant": "return"
+  },
+  {
+   "id": "m15",
+   "from": "route",
+   "to": "browser",
+   "y": 562,
+   "label": "JSON: tekst, chip, kaarten",
+   "variant": "return"
+  }
+ ],
+ "activations": [
+  {
+   "participant": "route",
+   "type": "backend",
+   "from": 198,
+   "to": 570
+  },
+  {
+   "participant": "runchat",
+   "type": "backend",
+   "from": 218,
+   "to": 542
+  },
+  {
+   "participant": "clf",
+   "type": "backend",
+   "from": 246,
+   "to": 290
+  },
+  {
+   "participant": "sig",
+   "type": "backend",
+   "from": 302,
+   "to": 402
+  },
+  {
+   "participant": "agent",
+   "type": "cloud",
+   "from": 414,
+   "to": 514
+  },
+  {
+   "participant": "tools",
+   "type": "database",
+   "from": 442,
+   "to": 486
+  }
+ ],
+ "cards": [
+  {
+   "dot": "emerald",
+   "title": "Ingrepen",
+   "items": [
+    "scam_signal: veiligheidswaarschuwing, altijd naar app_beveiliging",
+    "needs_human: overdrachtskaart met samenvatting, geen agent",
+    "lage confidence of onduidelijk: verduidelijkende vraag"
+   ]
+  },
+  {
+   "dot": "rose",
+   "title": "Veiligheid",
+   "items": [
+    "Klanttekst in <klantbericht> in de user-rol, signalen in <context>",
+    "Tools read-only, klant-ID server-bepaald",
+    "Antwoord als platte tekst gerenderd"
+   ]
+  }
+ ]
+}

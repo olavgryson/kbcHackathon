@@ -1,3 +1,4 @@
+import "server-only";
 import { NextResponse } from "next/server";
 import { ChatRequestSchema } from "@/lib/contracts";
 import { runChat } from "@/lib/agents";

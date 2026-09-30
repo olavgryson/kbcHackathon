@@ -1,29 +1,43 @@
 import "server-only";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { getClassifier } from "@/lib/classifier";
 import { SmsCheckRequestSchema, type SmsCheckResponse } from "@/lib/contracts";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
+const MAX_BODY_BYTES = 8 * 1024;
 const HEADERS = { "Cache-Control": "no-store" };
-const bad = () => NextResponse.json({ error: "Ongeldig verzoek." }, { status: 400, headers: HEADERS });
 
-export async function POST(req: NextRequest) {
-  if (!req.headers.get("content-type")?.includes("application/json")) return bad();
+function fail(error: string, status: number) {
+  return NextResponse.json({ error }, { status, headers: HEADERS });
+}
+
+export async function POST(req: Request) {
+  // startsWith (not includes): "text/plain; x=application/json" must be rejected.
+  if (!(req.headers.get("content-type") ?? "").toLowerCase().startsWith("application/json")) {
+    return fail("Ongeldig verzoek.", 415);
+  }
+  const declared = Number(req.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > MAX_BODY_BYTES) return fail("Ongeldig verzoek.", 413);
+
   let raw: unknown;
   try {
-    raw = await req.json();
+    const text = await req.text();
+    if (text.length > MAX_BODY_BYTES) return fail("Ongeldig verzoek.", 413);
+    raw = JSON.parse(text);
   } catch {
-    return bad();
+    return fail("Ongeldig verzoek.", 400);
   }
   const parsed = SmsCheckRequestSchema.safeParse(raw);
-  if (!parsed.success) return bad();
+  if (!parsed.success) return fail("Ongeldig verzoek.", 400);
   const started = Date.now();
   try {
     const verdict: SmsCheckResponse = await getClassifier().judgeSms(parsed.data.text);
     console.info(`[sms] verdict=${verdict.verdict} latencyMs=${Date.now() - started}`);
     return NextResponse.json(verdict, { headers: HEADERS });
   } catch {
-    return NextResponse.json({ error: "Er ging iets mis." }, { status: 500, headers: HEADERS });
+    console.error("[sms] error");
+    return fail("Er ging iets mis.", 500);
   }
 }

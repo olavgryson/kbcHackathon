@@ -28,7 +28,7 @@ registerHooks({
     if (specifier.startsWith("@/")) {
       return { url: withTsExtension(new URL(specifier.slice(2), `${root.href}/`).href), shortCircuit: true, format: undefined };
     }
-    if ((specifier.startsWith("./") || specifier.startsWith("../")) && context.parentURL?.startsWith("file:")) {
+    if ((specifier.startsWith("./") || specifier.startsWith("../")) && context.parentURL?.startsWith("file:") && !context.parentURL.includes("/node_modules/")) {
       return { url: withTsExtension(new URL(specifier, context.parentURL).href), shortCircuit: true };
     }
     return nextResolve(specifier, context);

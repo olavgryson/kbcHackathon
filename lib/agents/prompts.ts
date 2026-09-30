@@ -1,3 +1,4 @@
+import "server-only";
 import type { Domain, Language } from "@/lib/contracts";
 
 const LANGUAGE_NAMES: Record<Language, string> = { nl: "Nederlands", fr: "Frans", en: "Engels" };

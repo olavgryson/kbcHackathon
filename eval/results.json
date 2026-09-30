@@ -1,0 +1,122 @@
+{
+  "generatedAt": "2026-09-30T19:20:09.440Z",
+  "classifier": "fallback",
+  "total": 156,
+  "accuracy": 0.8076923076923077,
+  "perLanguage": {
+    "nl": {
+      "total": 51,
+      "correct": 42,
+      "accuracy": 0.8235294117647058
+    },
+    "fr": {
+      "total": 52,
+      "correct": 41,
+      "accuracy": 0.7884615384615384
+    },
+    "en": {
+      "total": 53,
+      "correct": 43,
+      "accuracy": 0.8113207547169812
+    }
+  },
+  "confusion": {
+    "betalingen": {
+      "betalingen": 19,
+      "kaarten": 0,
+      "sparen_beleggen": 0,
+      "kredieten": 0,
+      "verzekeringen": 0,
+      "app_beveiliging": 0,
+      "loon_hr": 0,
+      "onduidelijk": 4
+    },
+    "kaarten": {
+      "betalingen": 1,
+      "kaarten": 12,
+      "sparen_beleggen": 0,
+      "kredieten": 0,
+      "verzekeringen": 0,
+      "app_beveiliging": 1,
+      "loon_hr": 0,
+      "onduidelijk": 3
+    },
+    "sparen_beleggen": {
+      "betalingen": 0,
+      "kaarten": 0,
+      "sparen_beleggen": 13,
+      "kredieten": 1,
+      "verzekeringen": 0,
+      "app_beveiliging": 0,
+      "loon_hr": 0,
+      "onduidelijk": 3
+    },
+    "kredieten": {
+      "betalingen": 0,
+      "kaarten": 0,
+      "sparen_beleggen": 0,
+      "kredieten": 15,
+      "verzekeringen": 0,
+      "app_beveiliging": 0,
+      "loon_hr": 0,
+      "onduidelijk": 4
+    },
+    "verzekeringen": {
+      "betalingen": 0,
+      "kaarten": 0,
+      "sparen_beleggen": 0,
+      "kredieten": 0,
+      "verzekeringen": 10,
+      "app_beveiliging": 0,
+      "loon_hr": 0,
+      "onduidelijk": 4
+    },
+    "app_beveiliging": {
+      "betalingen": 1,
+      "kaarten": 3,
+      "sparen_beleggen": 0,
+      "kredieten": 0,
+      "verzekeringen": 0,
+      "app_beveiliging": 20,
+      "loon_hr": 0,
+      "onduidelijk": 0
+    },
+    "loon_hr": {
+      "betalingen": 1,
+      "kaarten": 0,
+      "sparen_beleggen": 0,
+      "kredieten": 0,
+      "verzekeringen": 0,
+      "app_beveiliging": 0,
+      "loon_hr": 16,
+      "onduidelijk": 4
+    },
+    "onduidelijk": {
+      "betalingen": 0,
+      "kaarten": 0,
+      "sparen_beleggen": 0,
+      "kredieten": 0,
+      "verzekeringen": 0,
+      "app_beveiliging": 0,
+      "loon_hr": 0,
+      "onduidelijk": 21
+    }
+  },
+  "tokens": {
+    "baselineAvg": 1085,
+    "plusAvg": 352,
+    "measured": "estimated"
+  },
+  "interventions": {
+    "scam_warning": 6,
+    "handover": 14,
+    "clarify": 42
+  },
+  "signals": {
+    "precision": 1,
+    "recall": 1,
+    "tp": 4,
+    "fp": 0,
+    "fn": 0
+  }
+}
