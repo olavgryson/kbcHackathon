@@ -1,15 +1,22 @@
 :root {
-  --kbc-navy: #003665;
-  --kbc-blue: #00aeef;
-  --bg: #f3f6f9;
+  /* Kate palette (navy wordmark, bright "voice" blue, soft sky tints) */
+  --kate-navy: #0b2559;
+  --kate-blue: #0a9fe0;
+  --kate-bubble: #1fa8e8;
+  --kate-sky: #e8f4fc;
+  --kate-ring: #b7dcf4;
+  --kate-assistant: #eef3f7;
+  --kbc-navy: var(--kate-navy);
+  --kbc-blue: var(--kate-blue);
+  --bg: #f7fafd;
   --surface: #ffffff;
-  --text: #1a2633;
+  --text: #1b2b45;
   --muted: #5b6b7b;
-  --border: #d9e1e8;
+  --border: #dde7f0;
   --danger: #c62828;
   --warning: #b26a00;
   --ok: #2e7d32;
-  --radius: 14px;
+  --radius: 18px;
 }
 
 * { box-sizing: border-box; }
@@ -17,9 +24,13 @@
 html, body {
   margin: 0;
   padding: 0;
-  background: var(--bg);
+  background:
+    radial-gradient(1200px 700px at 100% 0%, var(--kate-sky) 0%, rgba(232, 244, 252, 0) 60%),
+    radial-gradient(900px 600px at 0% 100%, #f0f7fd 0%, rgba(240, 247, 253, 0) 55%),
+    var(--bg);
+  background-attachment: fixed;
   color: var(--text);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: "Avenir Next", Avenir, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   line-height: 1.45;
 }
 

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { KateLogo } from "@/components/KateLogo";
 import { DOMAINS, DOMAIN_LABELS_NL, LANGUAGES, type Domain, type Language } from "@/lib/contracts";
 import { loadResults } from "./loadResults";
 import styles from "./page.module.css";
@@ -54,9 +55,7 @@ export default async function DashboardPage() {
     <div className={styles.page}>
       <header className={styles.header}>
         <div>
-          <h1 className={styles.title}>
-            Kate<span className={styles.plus}>+</span> dashboard
-          </h1>
+          <KateLogo suffix="dashboard" />
           <p className={styles.sub}>Evaluatieresultaten · synthetische data</p>
         </div>
         <Link href="/" className={styles.back}>Terug naar de chat</Link>

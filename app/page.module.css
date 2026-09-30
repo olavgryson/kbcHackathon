@@ -1,8 +1,6 @@
 .page { max-width: 1100px; margin: 0 auto; padding: 12px; }
 .header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 4px 14px; }
-.logo { margin: 0; font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em; color: var(--kbc-navy); line-height: 1; }
-.plus { color: var(--kbc-blue); }
-.sub { margin: 4px 0 0; font-size: 0.85rem; color: var(--muted); }
+.sub { margin: 6px 0 0 58px; font-size: 0.85rem; color: var(--muted); }
 .dash { font-weight: 600; padding: 8px 16px; border: 1px solid var(--kbc-navy); border-radius: 999px; text-decoration: none; color: var(--kbc-navy); background: var(--surface); }
 .layout { display: grid; grid-template-columns: 1fr; gap: 14px; }
 .side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }

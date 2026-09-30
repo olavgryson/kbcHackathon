@@ -1,0 +1,11 @@
+.icon { flex: none; display: block; }
+.lockup { display: inline-flex; align-items: center; gap: 12px; margin: 0; line-height: 1; }
+.word {
+  font-family: Rockwell, "Rockwell Nova", "Roboto Slab", "Clarendon", Georgia, serif;
+  font-weight: 800;
+  font-size: 2.1rem;
+  letter-spacing: -0.01em;
+  color: var(--kate-navy);
+}
+.plus { color: var(--kate-blue); margin-left: 1px; }
+.suffix { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-weight: 600; font-size: 1.2rem; color: var(--muted); letter-spacing: 0; }

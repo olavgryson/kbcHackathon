@@ -15,6 +15,7 @@ import { Interventions } from "./Interventions";
 import { MetaChips } from "./MetaChips";
 import { ModeToggle } from "./ModeToggle";
 import styles from "./Chat.module.css";
+import { KateIcon } from "./KateLogo";
 
 type Outcome = { ok: true; data: ChatResponse } | { ok: false; error: string };
 
@@ -98,9 +99,12 @@ export function Chat() {
     const d = o.data;
     return (
       <div>
-        <div className={styles.assistant}>
-          {label ? <div className={styles.label}>{label}</div> : null}
-          <p className={styles.text}>{d.reply}</p>
+        <div className={styles.assistantLine}>
+          <KateIcon size={34} />
+          <div className={styles.assistant}>
+            {label ? <div className={styles.label}>{label}</div> : null}
+            <p className={styles.text}>{d.reply}</p>
+          </div>
         </div>
         <MetaChips meta={d.meta} />
         {d.meta.interventions.length > 0 ? (
